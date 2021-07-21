@@ -1,5 +1,6 @@
 package com.wipro.learning.service;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -14,6 +15,8 @@ import org.springframework.web.client.RestTemplate;
 import com.wipro.learning.domain.Content;
 import com.wipro.learning.domain.Learner;
 import com.wipro.learning.model.ContentRequestDto;
+import com.wipro.learning.model.ContentResponseDto;
+import com.wipro.learning.model.ContentResponseDto.ContentDto;
 import com.wipro.learning.model.SubscribeRequestDto;
 import com.wipro.learning.repository.ContentRepository;
 import com.wipro.learning.repository.LearnerRepository;
@@ -82,6 +85,12 @@ public class ContentService {
 		}
 	}
 
+	/**
+	 * Method to create Contents
+	 * 
+	 * @param contentRequest {@link ContentRequestDto}
+	 * @return - return message on successful creation
+	 */
 	public ResponseEntity<?> createContent(ContentRequestDto contentRequest) {
 
 		Content contentEntity = new Content();
@@ -94,12 +103,48 @@ public class ContentService {
 		return ResponseEntity.ok(contentRequest.getTitle() + " content created Successfully");
 	}
 
+	/**
+	 * Method to update existing content
+	 * 
+	 * @param contentId      {@link Integer}
+	 * @param contentRequest {@link ContentRequestDto}
+	 * @return - returns proper message successful update
+	 */
+	public ResponseEntity<?> updateContent(Integer contentId, ContentRequestDto contentRequest) {
+
+		Content contentEntity = contentRepository.findById(contentId)
+				.orElseThrow(() -> new RuntimeException("Content not found"));
+
+		contentEntity.setData(contentRequest.getData().getBytes());
+
+		contentRepository.save(contentEntity);
+
+		return ResponseEntity.ok(contentRequest.getTitle() + " content updated Successfully");
+	}
+
 	public ResponseEntity<?> retrieveSubscribedContents(Integer userId) {
 
 		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User ID not found"));
 
+		if (Objects.isNull(user.getLearnerId())) {
+			return ResponseEntity.ok("User with ID: " + user.getId() + " NOT subscribed to any course/s");
+		}
+
 		Learner learner = learnerRepository.findById(user.getLearnerId()).orElse(new Learner());
 
-		return ResponseEntity.ok(learner);
+		ContentResponseDto contentResponseDto = new ContentResponseDto();
+		contentResponseDto.setUserId(userId);
+		contentResponseDto.setLearnerId(learner.getId());
+
+		Set<ContentDto> contents = new HashSet<>();
+
+		learner.getContents().forEach(content -> {
+			contents.add(ContentDto.builder().creatorId(content.getCreatorId()).data(new String(content.getData()))
+					.title(content.getTitle()).id(content.getId()).build());
+		});
+
+		contentResponseDto.setContents(contents);
+
+		return ResponseEntity.ok(contentResponseDto);
 	}
 }
