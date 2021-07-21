@@ -26,7 +26,6 @@ import lombok.extern.slf4j.Slf4j;
  * and others
  * 
  * @author Naveen Devarajaiah
- *
  */
 @RestController
 @RequestMapping("/api/content")
