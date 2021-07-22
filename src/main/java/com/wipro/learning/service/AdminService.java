@@ -1,5 +1,6 @@
 package com.wipro.learning.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -11,18 +12,21 @@ import org.springframework.util.CollectionUtils;
 
 import com.wipro.learning.domain.Plan;
 import com.wipro.learning.model.PlanDto;
-import com.wipro.learning.repository.AdminRepository;
+import com.wipro.learning.model.UsersDto;
+import com.wipro.learning.repository.PlanRepository;
 import com.wipro.reglogin.domain.Role;
 import com.wipro.reglogin.domain.User;
 import com.wipro.reglogin.model.RoleEnum;
 import com.wipro.reglogin.repository.RoleRepository;
 import com.wipro.reglogin.repository.UserRepository;
 
+import javassist.NotFoundException;
+
 @Service
 public class AdminService {
 
 	@Autowired
-	private AdminRepository adminRepository;
+	private PlanRepository planRepository;
 
 	@Autowired
 	private UserRepository userRepository;
@@ -36,15 +40,25 @@ public class AdminService {
 				Plan plan = Plan.builder().name(planDto.getName()).price(planDto.getPrice())
 						.numberofcourses(planDto.getNumberofcourses()).createdby(planDto.getUserid()).build();
 
-				adminRepository.save(plan);
+				planRepository.save(plan);
 			});
 		}
 
 		return ResponseEntity.ok("Plan/s created successfully");
 	}
 
+	/**
+	 * Method to retrieve all Users/Learners excluding Admins
+	 * 
+	 * @return - List of Users
+	 */
 	public ResponseEntity<?> retrieveUsers() {
-		return null;
+		List<UsersDto> usersList = new ArrayList<>();
+		userRepository.findAll().forEach(user -> {
+			usersList.add(UsersDto.builder().id(user.getId()).email(user.getEmail()).username(user.getUsername())
+					.roles(user.getRoles()).learnerId(user.getLearnerId()).build());
+		});
+		return ResponseEntity.ok(usersList);
 	}
 
 	/**
@@ -69,6 +83,22 @@ public class AdminService {
 		userRepository.save(user);
 
 		return ResponseEntity.ok("Successfully enhanced User with ID: " + userId + " to a role of Content Creator");
+	}
+
+	/**
+	 * Method to retrieve Plans
+	 * 
+	 * @return - List of Plans
+	 * @throws NotFoundException
+	 */
+	public ResponseEntity<?> retrievePlans() throws NotFoundException {
+
+		List<Plan> plans = planRepository.findAll();
+		if (plans.isEmpty()) {
+			throw new NotFoundException("Plans not found");
+		}
+
+		return ResponseEntity.ok(plans);
 	}
 
 }

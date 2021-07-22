@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wipro.learning.model.PlanDto;
 import com.wipro.learning.service.AdminService;
 
+import javassist.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -49,6 +50,12 @@ public class AdminController {
 	public ResponseEntity<?> createPlans(@Valid @RequestBody List<PlanDto> planDtoList) {
 		log.info("Request to create Plans received");
 		return adminService.createPlans(planDtoList);
+	}
+
+	@GetMapping(path = "/getPlans", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getPlans() throws NotFoundException {
+		log.info("Request to fetch Plans received");
+		return adminService.retrievePlans();
 	}
 
 	/**
