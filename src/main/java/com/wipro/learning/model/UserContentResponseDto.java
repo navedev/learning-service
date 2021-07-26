@@ -9,13 +9,13 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class ContentResponseDto {
+public class UserContentResponseDto {
 
 	private Integer userId;
 
 	private String learnerId;
 
-	Set<ContentDto> contents;
+	private Set<ContentDto> contents;
 
 	@Data
 	@NoArgsConstructor

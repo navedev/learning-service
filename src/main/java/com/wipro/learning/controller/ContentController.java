@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.wipro.learning.model.ContentRequestDto;
 import com.wipro.learning.model.SubscribeRequestDto;
+import com.wipro.learning.model.SubscribeToContentRequestDto;
 import com.wipro.learning.service.ContentService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -65,15 +66,28 @@ public class ContentController {
 	}
 
 	/**
-	 * Method to Subscribe to different contents per user
+	 * Method to Subscribe to Plans
 	 * 
 	 * @param subscribeRequest - Subscription request {@link SubscribeRequestDto}
 	 * @return - return proper message on success else exception
 	 */
-	@PostMapping(path = "/subscribe", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> subscribeToContents(@Valid @RequestBody SubscribeRequestDto subscribeRequest) {
-		log.info("User: {} is subscribing to contents", subscribeRequest.getUserid());
-		return contentService.subscribeToContents(subscribeRequest);
+	@PostMapping(path = "/subscribe-plan", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> subscribeToPlans(@Valid @RequestBody SubscribeRequestDto subscribeRequest) {
+		log.info("User: {} is subscribing to Plan: {}", subscribeRequest.getUserid(),
+				subscribeRequest.getPlan().getName());
+		return contentService.subscribeToPlans(subscribeRequest);
+	}
+
+	/**
+	 * Method to Subscribe to different contents per user
+	 * 
+	 * @param subscribeToContents - Subscription request {@link SubscribeToContentRequestDto}
+	 * @return - return proper message on success else exception
+	 */
+	@PostMapping(path = "/subscribe-contents", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> subscribeToContents(@Valid @RequestBody SubscribeToContentRequestDto subscribeToContents) {
+		log.info("User: {} is subscribing to contents", subscribeToContents.getUserid());
+		return contentService.subscribeToContents(subscribeToContents);
 	}
 
 	/**

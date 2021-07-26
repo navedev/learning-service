@@ -1,18 +1,18 @@
 package com.wipro.learning.model;
 
+import java.util.Set;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class SubscribeRequestDto {
+public class SubscribeToContentRequestDto {
 
 	private Integer userid;
 
 	private String learnerid;
 
-	private PlanDto plan;
-
-	private PaymentDto payment;
+	private Set<Integer> contentid;
 
 }

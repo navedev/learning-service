@@ -10,9 +10,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import com.wipro.learning.domain.Content;
 import com.wipro.learning.domain.Plan;
+import com.wipro.learning.model.ContentsDto;
 import com.wipro.learning.model.PlanDto;
 import com.wipro.learning.model.UsersDto;
+import com.wipro.learning.repository.ContentRepository;
 import com.wipro.learning.repository.PlanRepository;
 import com.wipro.reglogin.domain.Role;
 import com.wipro.reglogin.domain.User;
@@ -33,6 +36,9 @@ public class AdminService {
 
 	@Autowired
 	private RoleRepository roleRepository;
+
+	@Autowired
+	private ContentRepository contentRepository;
 
 	public ResponseEntity<?> createPlans(List<PlanDto> planDtoList) {
 		if (!CollectionUtils.isEmpty(planDtoList)) {
@@ -99,6 +105,23 @@ public class AdminService {
 		}
 
 		return ResponseEntity.ok(plans);
+	}
+
+	public ResponseEntity<?> retrieveContents() throws NotFoundException {
+
+		List<Content> contentList = contentRepository.findAll();
+
+		if (contentList.isEmpty()) {
+			throw new NotFoundException("No content/s found");
+		}
+
+		List<ContentsDto> contents = new ArrayList<>();
+		contentList.forEach(content -> {
+			contents.add(ContentsDto.builder().creatorId(content.getCreatorId()).data(new String(content.getData()))
+					.id(content.getId()).title(content.getTitle()).build());
+		});
+
+		return ResponseEntity.ok(contents);
 	}
 
 }

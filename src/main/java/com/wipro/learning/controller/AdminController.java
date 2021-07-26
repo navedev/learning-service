@@ -71,6 +71,18 @@ public class AdminController {
 	}
 
 	/**
+	 * Method to retrieve all Contents
+	 * 
+	 * @return - returns List of Contents
+	 * @throws NotFoundException 
+	 */
+	@GetMapping(path = "/contents", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> retrieveContents() throws NotFoundException {
+		log.info("Request to retrieve all Contents");
+		return adminService.retrieveContents();
+	}
+	
+	/**
 	 * Method to enhance User to Content Creator
 	 * 
 	 * @param userId - User ID {@link Integer}

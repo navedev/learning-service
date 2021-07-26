@@ -11,6 +11,8 @@ public class PlanDto {
 	
 	private Integer userid;
 	
+	private Long planId;
+	
 	private String name;
 
 	private BigDecimal price;

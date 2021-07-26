@@ -15,9 +15,10 @@ import org.springframework.web.client.RestTemplate;
 import com.wipro.learning.domain.Content;
 import com.wipro.learning.domain.Learner;
 import com.wipro.learning.model.ContentRequestDto;
-import com.wipro.learning.model.ContentResponseDto;
-import com.wipro.learning.model.ContentResponseDto.ContentDto;
+import com.wipro.learning.model.UserContentResponseDto;
+import com.wipro.learning.model.UserContentResponseDto.ContentDto;
 import com.wipro.learning.model.SubscribeRequestDto;
+import com.wipro.learning.model.SubscribeToContentRequestDto;
 import com.wipro.learning.repository.ContentRepository;
 import com.wipro.learning.repository.LearnerRepository;
 import com.wipro.payment.model.PaymentDto;
@@ -39,30 +40,49 @@ public class ContentService {
 	@Autowired
 	private RestTemplate restTemplate;
 
-	public ResponseEntity<?> subscribeToContents(SubscribeRequestDto subscribeRequest) {
+	public ResponseEntity<?> subscribeToPlans(SubscribeRequestDto subscribeRequest) {
 
 		// First Verify Payment
 		verifyPayment(subscribeRequest);
 
 		String learnerId = subscribeRequest.getLearnerid();
+		User user = userRepository.findById(subscribeRequest.getUserid())
+				.orElseThrow(() -> new RuntimeException("User ID not found"));
 
+		// New User - Subscribing first time
 		if (!StringUtils.hasText(subscribeRequest.getLearnerid())) {
 			learnerId = UUID.randomUUID().toString();
-			// Update user_id
-			User user = userRepository.findById(subscribeRequest.getUserid())
-					.orElseThrow(() -> new RuntimeException("User ID not found"));
 			user.setLearnerId(Objects.nonNull(user.getLearnerId()) ? user.getLearnerId() : learnerId);
-			userRepository.save(user);
+
+		}
+		// Existing User - Enhancing Subscription
+		else {
+			if (user.getPlanId() > subscribeRequest.getPlan().getPlanId()) {
+				throw new IllegalArgumentException("Cannot downgrade Subscription");
+			}
 		}
 
-		Learner learnerEntity = new Learner();
-		learnerEntity.setId(learnerId);
+		user.setPlanId(subscribeRequest.getPlan().getPlanId());
+		userRepository.save(user);
 
-		Set<Content> contents = subscribeRequest.getContentid().stream().map(contentId -> {
+		return ResponseEntity
+				.ok("User/Learner subscribed successfully for " + subscribeRequest.getPlan().getName() + " Plan");
+
+	}
+
+	public ResponseEntity<?> subscribeToContents(SubscribeToContentRequestDto subscribeToContent) {
+
+		User user = userRepository.findById(subscribeToContent.getUserid())
+				.orElseThrow(() -> new RuntimeException("User ID not found"));
+
+		Learner learnerEntity = learnerRepository.findById(user.getLearnerId())
+				.orElseThrow(() -> new RuntimeException("Learner ID not found"));
+
+		Set<Content> contents = subscribeToContent.getContentid().stream().map(contentId -> {
 			return contentRepository.findById(contentId).orElse(new Content());
 		}).collect(Collectors.toSet());
 
-		learnerEntity.setContents(contents);
+		learnerEntity.getContents().addAll(contents);
 
 		learnerRepository.save(learnerEntity);
 
@@ -132,7 +152,7 @@ public class ContentService {
 
 		Learner learner = learnerRepository.findById(user.getLearnerId()).orElse(new Learner());
 
-		ContentResponseDto contentResponseDto = new ContentResponseDto();
+		UserContentResponseDto contentResponseDto = new UserContentResponseDto();
 		contentResponseDto.setUserId(userId);
 		contentResponseDto.setLearnerId(learner.getId());
 

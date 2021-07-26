@@ -1,9 +1,5 @@
 package com.wipro.learning.model;
 
-import java.util.Set;
-
-import com.wipro.reglogin.domain.Role;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,16 +9,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-public class UsersDto {
-
+public class ContentsDto {
+	
 	private Integer id;
 
-	private String username;
+	private String title;
 
-	private String email;
+	private String data;
 
-	private Set<Role> roles;
-
-	private String learnerId;
+	private Integer creatorId;
 
 }
