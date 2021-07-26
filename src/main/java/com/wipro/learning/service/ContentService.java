@@ -64,6 +64,10 @@ public class ContentService {
 
 		user.setPlanId(subscribeRequest.getPlan().getPlanId());
 		userRepository.save(user);
+		
+		Learner learnerEntity = new Learner();
+		learnerEntity.setId(learnerId);
+		learnerRepository.save(learnerEntity);
 
 		return ResponseEntity
 				.ok("User/Learner subscribed successfully for " + subscribeRequest.getPlan().getName() + " Plan");
