@@ -24,5 +24,7 @@ public class UsersDto {
 	private Set<Role> roles;
 
 	private String learnerId;
+	
+	private PlanDto planDto;
 
 }

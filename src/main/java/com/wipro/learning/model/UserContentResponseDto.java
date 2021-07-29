@@ -16,7 +16,7 @@ public class UserContentResponseDto {
 	private String learnerId;
 
 	private Set<ContentDto> contents;
-
+	
 	@Data
 	@NoArgsConstructor
 	@AllArgsConstructor
